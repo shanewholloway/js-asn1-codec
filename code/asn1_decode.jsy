@@ -1,0 +1,93 @@
+import { u8_to_hex } from './u8_utils.jsy'
+
+export default asn1_u8_decode
+export function asn1_u8_decode(u8) ::
+  for const node of asn1_u8_decode_many(u8) ::
+    return node
+
+export function *asn1_u8_decode_many(u8) ::
+  if ! u8 instanceof Uint8Array ::
+    u8 = new Uint8Array @ u8.buffer || u8
+
+  let i=0
+  while i < u8.byteLength ::
+    const id = u8[i++]
+
+    let content
+    const len0 = u8[i++]
+    if len0 < 128 :: // definite short
+      content = u8.subarray(i, i+len0)
+      i += len0
+
+    else if 128 === len0 ::
+      throw new Error @ 'Unsupported indefinite length'
+    else if 255 === len0 ::
+      throw new Error @ 'Unsupported reserved length'
+
+    else :: // definite long
+      const len_octets = len0 & 127
+      if len_octets > 2 ::
+        throw new Error @ `Unsupported definite long octets (${len_octets})`
+
+      const len_content = u8.slice(i, i + len_octets).reduce @ (r, v) => (r << 8) | v
+      i += len_octets
+
+      content = u8.subarray(i, i + len_content)
+      i += len_content
+
+    const node = @{} __proto__: asn1_node,
+      id, byteLength: content.byteLength
+
+    Object.defineProperties @ node, @{}
+      content: @{} value: content
+
+    node.hex = u8_to_hex @ content, ' '
+
+    yield node
+
+
+export const asn1_node = @{}
+  __proto__: null
+  get tag() :: return 0x1f & this.id
+  get tagClass() :: return this.id >>> 6
+  get primitive() :: return 0 === (0x20 & this.id)
+  get constructed() :: return 0 !== (0x20 & this.id)
+
+  parse_parts() ::
+    return 0x20 & this.id
+      ? Array.from @ asn1_u8_decode_many(this.content)
+      : null
+
+  walk(visitor) ::
+    const iter = this.iter_walk(visitor)
+    while 1 ::
+      const {value, done} = iter.next()
+      if done :: return value
+
+  *iter_walk(visitor) ::
+    let parts = null
+    if 0x20 & this.id ::
+      parts = []
+      for const p of asn1_u8_decode_many(this.content) ::
+        parts.push @ yield * p.iter_walk(visitor)
+
+    if visitor ::
+      return visitor @ this, parts
+    else ::
+      return Object.assign @ Object.create(this), this, parts && {parts}
+
+
+export const asn1_identifiers_byTag = @[]
+  'EOC', 'BOOLEAN', 'INTEGER', 'BIT STRING',
+  'OCTET STRING', 'NULL', 'OBJECT IDENTIFIER', 'Object Descriptor',
+  'EXTERNAL', 'REAL', 'ENUMERATED', 'EMBEDDED PDV',
+  'UTF8String', 'RELATIVE-OID', 'Reserved', 'Reserved',
+  'SEQUENCE', 'SET', 'NumericString', 'PrintableString',
+  'T61String', 'VideotexString', 'IA5String', 'UTCTime',
+  'GeneralizedTime', 'GraphicString', 'VisibleString', 'GeneralString',
+  'UniversalString', 'CHARACTER STRING', 'BMPString',
+
+export function with_asn1_identifiers(node) ::
+  return node.walk @ n =>
+    n.name = asn1_identifiers_byTag[n.tag]
+

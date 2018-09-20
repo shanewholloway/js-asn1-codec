@@ -1,0 +1,20 @@
+export function u8_to_hex(u8, sep) ::
+  return Array
+    .from @ u8, v => v.toString(16).padStart(2, '0')
+    .join @ null != sep ? sep : ''
+
+export function u8_concat(parts) ::
+  let i=0, len=0
+  for const b of parts ::
+    len += b.byteLength
+
+  const u8 = new Uint8Array(len)
+  for const u8_part of parts ::
+    if ! (u8_part.buffer || u8_part) instanceof ArrayBuffer ::
+      throw new Error @ "Invalid part content"
+
+    u8.set @ u8_part, i
+    i += u8_part.byteLength
+  return u8
+
+

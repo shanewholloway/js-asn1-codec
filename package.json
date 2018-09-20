@@ -1,0 +1,40 @@
+{
+  "name": "asn1-codec",
+  "version": "0.0.1",
+  "description": "",
+  "license": "BSD-2-Clause",
+  "author": "Shane Holloway <shane.holloway@ieee.org>",
+  "homepage": "https://github.com/shanewholloway/js-ecdsa-isomorphic#readme",
+  "bugs": {
+    "url": "https://github.com/shanewholloway/js-ecdsa-isomorphic/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shanewholloway/js-ecdsa-isomorphic.git"
+  },
+  "files": [
+    "cjs/",
+    "esm/",
+    "umd/"
+  ],
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "browser": "umd/asn1_codec.min.js",
+  "dependencies": {},
+  "devDependencies": {
+    "asn1_codec": "file:.",
+    "jsy-transpile": "^0.3.7",
+    "rollup": "^0.66.1",
+    "rollup-plugin-jsy-lite": "^1.2.5",
+    "rollup-plugin-terser": "^3.0.0"
+  },
+  "scripts": {
+    "clean": "rm -rf ./cjs/* ./esm/* ./umd/*",
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "pretest": "npm -s run build",
+    "test": "npm -s run test:one",
+    "test:one": "mocha ./test/__unittest.cjs.js",
+    "test:min": "mocha --reporter=min ./test/__unittest.cjs.js"
+  }
+}

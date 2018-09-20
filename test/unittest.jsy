@@ -1,0 +1,5 @@
+(require('source-map-support') || {install(){}}).install()
+
+import * as ecdsa from 'asn1-codec/esm/ecdsa'
+console.log @ ecdsa
+

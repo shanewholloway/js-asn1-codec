@@ -1,0 +1,78 @@
+import { u8_to_hex, u8_concat } from './u8_utils.jsy'
+
+export default asn1_u8_encode
+export function asn1_u8_encode(content_tree) ::
+  const is_lst = Array.isArray(content_tree)
+
+  const all_parts = []
+  encode_next(content_tree)
+  return u8_concat @ all_parts
+
+  function encode_next(content_tree) ::
+    const ident = is_lst ? content_tree[0] : content_tree.id
+    const id = ident | 0
+    let byteLength = 0
+
+    const hdr = [id, null], hdr_idx = all_parts.length
+    all_parts[hdr_idx] = hdr
+
+    if ! Number.isInteger(ident) || 0 > ident || ident > 255 ::
+      throw new Error @ 'Invalid ASN1 identifier'
+
+    if 0x20 & id ::
+      const parts = is_lst
+        ? content_tree.slice(1)
+        : content_tree.parts
+
+      if 0 === parts.length ::
+        throw new Error @ "Empty composite"
+
+      for const p of parts ::
+        byteLength += encode_next(p)
+
+    else ::
+      const content = is_lst ? content_tree[1] : content_tree.content
+      all_parts.push @ content
+      byteLength += content.byteLength
+
+      if is_lst && 2 !== content_tree.length ::
+        throw new Error @ "Invalid non-composite with list of parts"
+
+
+    if byteLength < 128 ::
+      hdr[1] = byteLength
+    else ::
+      let octects = 0
+      while 0 !== byteLength ::
+        hdr.push @ byteLength & 0xff
+        byteLength >>>= 8
+        octects ++
+      hdr[1] = 0x80 | octects
+
+    all_parts[hdr_idx] = new Uint8Array(hdr)
+    byteLength += hdr.length
+    return byteLength
+
+
+const u8_zero = new Uint8Array([0])
+export function asn1_der_positive_int(v) ::
+  if 0x80 & v[0] ::
+    return u8_concat @# u8_zero, v
+
+  if 0 !== v[0] :: return v
+
+  for let i=1; i < v.byteLength; i++ ::
+    const b = v[i]
+    if 0 !== b ::
+      if 0x80 & b :: i--
+      return v.subarray(i)
+
+export function compact_positive_int(v, len) ::
+  if v.byteLength <= len ::
+    return v
+
+  if 0 === v[0] && 0x80 & v[1] ::
+    return v.subarray(1)
+
+  throw new Error @ 'Unexpected integer construction'
+
