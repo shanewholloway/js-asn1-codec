@@ -1,7 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "asn1-codec": "file:.."
+    "asn1-codec": "file:..",
+    "ec-pem": "^0.18.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
