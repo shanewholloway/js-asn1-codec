@@ -41,7 +41,7 @@ export function *asn1_u8_decode_many(u8) ::
     Object.defineProperties @ node, @{}
       content: @{} value: content
 
-    node.hex = u8_to_hex @ content, ' '
+    //node.hex = u8_to_hex @ content, ' '
 
     yield node
 
@@ -53,8 +53,19 @@ export const asn1_node = @{}
   get primitive() :: return 0 === (0x20 & this.id)
   get constructed() :: return 0 !== (0x20 & this.id)
 
-  parse_parts() ::
-    return 0x20 & this.id
+  hex() :: return u8_to_hex @ this.content
+  dbg() :: return `id: ${this.id} len: ${this.byteLength} hex: ${this.hex()}`
+
+  [Symbol.iterator]() :: return this.iter_parts()
+  iter_parts(override) ::
+    if 0x20 & this.id || override ::
+      return asn1_u8_decode_many(this.content)
+    else throw new Error @ 'Not a contructed ASN1 node'
+
+  first_part(override) ::
+    return asn1_u8_decode(this.content)
+  parse_parts(override) ::
+    return 0x20 & this.id || override
       ? Array.from @ asn1_u8_decode_many(this.content)
       : null
 
@@ -65,13 +76,16 @@ export const asn1_node = @{}
       if done :: return value
 
   *iter_walk(visitor) ::
+    if true === visitor ::
+      console.log @ this.dbg()
+
     let parts = null
     if 0x20 & this.id ::
       parts = []
       for const p of asn1_u8_decode_many(this.content) ::
         parts.push @ yield * p.iter_walk(visitor)
 
-    if visitor ::
+    if 'function' === typeof visitor ::
       return visitor @ this, parts
     else ::
       return Object.assign @ Object.create(this), this, parts && {parts}

@@ -22,7 +22,12 @@ add_web_jsy('web/u8_utils', {name: 'u8_utils'})
 add_jsy('u8_utils')
 add_jsy('asn1_decode')
 add_jsy('asn1_encode')
+
 add_jsy('ecdsa')
+
+add_node_jsy('nodejs/ecdh')
+add_web_jsy('web/ecdh')
+add_jsy('ecdh')
 
 
 function add_node_jsy(srcname, {outname, name, exports}={}) {

@@ -1,0 +1,37 @@
+const { createECDH } = require('crypto')
+const { assert, expect } = require('chai')
+
+import * as ecdh from 'asn1-codec/esm/nodejs/ecdh'
+import { u8_to_hex, hex_to_u8 } from 'asn1-codec/esm/nodejs/u8_utils.js'
+
+export const test_ecdh = test_ecdh_nodejs
+export async function test_ecdh_nodejs(keyKind, curve, format) ::
+  let ecdh_obj = ecdh.generateECDH(curve)
+  if 'publicKey' === keyKind ::
+    // clone with only the publicKey
+    const pubkey = ecdh_obj.getPublicKey()
+    ecdh_obj = ecdh.createECDH(curve)
+    ecdh_obj.setPublicKey(pubkey)
+
+  const exp = ecdh.exportECDH @ ecdh_obj, format
+  const rt_ecdh_obj = ecdh.importECDH(format, exp)
+
+  //console.log @ JSON.stringify @: keyKind, curve, format, exported: exp
+
+  ::
+    assert.equal @
+      0, Buffer.compare @ ecdh_obj.getPublicKey(), rt_ecdh_obj.getPublicKey()
+      `Roundtrip public key mismatch for curve: ${curve} format ${format} ${keyKind}`
+
+  if 'privateKey' === keyKind ::
+    assert.equal @
+      0, Buffer.compare @ ecdh_obj.getPrivateKey(), rt_ecdh_obj.getPrivateKey()
+      `Roundtrip private key mismatch for curve: ${curve} format ${format} ${keyKind}`
+
+
+export const validate_ecdh = validate_ecdh_nodejs
+export async function validate_ecdh_nodejs({keyKind, curve, format, exported}) ::
+  if 'string' === typeof exported ::
+    exported = hex_to_u8(exported).buffer
+
+  const ecdh_obj = await ecdh.importECDH @ format, exported

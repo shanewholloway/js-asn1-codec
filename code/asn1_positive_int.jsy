@@ -1,0 +1,24 @@
+import { u8_concat } from './u8_utils.jsy'
+
+export function asn1_der_positive_int(v) ::
+  if 0x80 & v[0] ::
+    return u8_concat @# new Uint8Array([0]), v
+
+  if 0 !== v[0] :: return v
+
+  for let i=1; i < v.byteLength; i++ ::
+    const b = v[i]
+    if 0 !== b ::
+      if 0x80 & b :: i--
+      return v.subarray(i)
+
+export function compact_positive_int(v, len) ::
+  if v.byteLength <= len ::
+    return v
+
+  if 0 === v[0] && 0x80 & v[1] ::
+    return v.subarray(1)
+
+  throw new Error @ 'Unexpected integer construction'
+
+

@@ -1,0 +1,6 @@
+export * from '../ecdh.jsy'
+import { base64_to_u8, u8_to_base64url } from './u8_utils.jsy'
+import { bind_decode_ecdh_jwk, bind_encode_ecdh_jwk } from '../ecdh.jsy'
+
+export const decode_ecdh_jwk = bind_decode_ecdh_jwk(base64_to_u8)
+export const encode_ecdh_jwk = bind_encode_ecdh_jwk(u8_to_base64url)

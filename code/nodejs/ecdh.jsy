@@ -1,0 +1,121 @@
+const {createECDH: _createECDH} = require('crypto')
+
+export * from '../ecdh.jsy'
+import { base64_to_u8, u8_to_base64url } from './u8_utils.jsy'
+import { bind_decode_ecdh_jwk, bind_encode_ecdh_jwk } from '../ecdh.jsy'
+import { decode_ecdh_private_pkcs8, encode_ecdh_private_pkcs8 } from '../ecdh.jsy'
+import { decode_ecdh_public_spki, encode_ecdh_public_spki } from '../ecdh.jsy'
+import { decode_ecdh_public_raw, encode_ecdh_public_raw } from '../ecdh.jsy'
+
+export const decode_ecdh_jwk = bind_decode_ecdh_jwk(base64_to_u8)
+export const encode_ecdh_jwk = bind_encode_ecdh_jwk(u8_to_base64url)
+
+
+const curveForName = @{}
+  'P-256': 'prime256v1', 'prime256v1': 'prime256v1', 'secp256r1': 'prime256v1',
+  'P-384': 'secp384r1', 'secp384r1': 'secp384r1',
+  'P-521': 'secp521r1', 'secp521r1': 'secp521r1',
+
+export const createECDH = nodejs_createECDH
+export function nodejs_createECDH(curve) ::
+  curve = curveForName[curve]
+  const ecdh_obj = _createECDH @ curve
+  ecdh_obj.curve = curve
+  return ecdh_obj
+
+export const generateECDH = nodejs_generateECDH
+export function nodejs_generateECDH(curve) ::
+  const ecdh_obj = nodejs_createECDH(curve)
+  ecdh_obj.generateKeys()
+  return ecdh_obj
+
+
+
+const _ecdh_export_by_format = @{}
+  jwk: nodejs_exportECDH_jwk
+  pkcs8: nodejs_exportECDH_pkcs8
+  spki: nodejs_exportECDH_spki
+  raw: nodejs_exportECDH_raw
+export const exportECDH = nodejs_exportECDH
+export function nodejs_exportECDH(ecdh_obj, format) ::
+  return _ecdh_export_by_format[format] @ ecdh_obj
+
+export const exportECDH_jwk = nodejs_exportECDH_jwk
+export function nodejs_exportECDH_jwk(ecdh_obj) ::
+  const res = nodejs_decodePrivateECDH(ecdh_obj, true)
+  return encode_ecdh_jwk @ res
+
+export const exportECDH_pkcs8 = nodejs_exportECDH_pkcs8
+export function nodejs_exportECDH_pkcs8(ecdh_obj) ::
+  const res = nodejs_decodePrivateECDH(ecdh_obj)
+  if ! res.d ::
+    throw new Error @ 'Expected a private ECDH key'
+  return encode_ecdh_private_pkcs8 @ res
+
+export const exportECDH_spki = nodejs_exportECDH_spki
+export function nodejs_exportECDH_spki(ecdh_obj) ::
+  const res = nodejs_decodePublicECDH(ecdh_obj)
+  return encode_ecdh_public_spki @ res
+
+export const exportECDH_raw = nodejs_exportECDH_raw
+export function nodejs_exportECDH_raw(ecdh_obj) ::
+  return Uint8Array.from @ ecdh_obj.getPublicKey()
+
+function nodejs_decodePublicECDH(ecdh_obj) ::
+  return decode_ecdh_public_raw @ 
+    Uint8Array.from @ ecdh_obj.getPublicKey()
+
+function nodejs_decodePrivateECDH(ecdh_obj, allowPublicOnly) ::
+  const res = nodejs_decodePublicECDH(ecdh_obj)
+  try ::
+    res.d = Uint8Array.from @ ecdh_obj.getPrivateKey()
+  catch err ::
+    if ! allowPublicOnly :: throw err
+  return res
+
+
+
+
+
+const _ecdh_import_by_format = @{}
+  jwk: nodejs_importECDH_jwk
+  pkcs8: nodejs_importECDH_pkcs8
+  spki: nodejs_importECDH_spki
+  raw: nodejs_importECDH_raw
+export const importECDH = nodejs_importECDH
+export function nodejs_importECDH(format, encoded_ecdh) ::
+  return _ecdh_import_by_format[format] @ encoded_ecdh
+
+export const importECDH_jwk = nodejs_importECDH_jwk
+export function nodejs_importECDH_jwk(jwk) ::
+  const res = decode_ecdh_jwk(jwk)
+  return res.d
+    ? nodejs_importPrivateECDH(res)
+    : nodejs_importPublicECDH(res)
+
+export const importECDH_pkcs8 = nodejs_importECDH_pkcs8
+export function nodejs_importECDH_pkcs8(u8) ::
+  const res = decode_ecdh_private_pkcs8(u8)
+  return nodejs_importPrivateECDH(res)
+
+export const importECDH_spki = nodejs_importECDH_spki
+export function nodejs_importECDH_spki(u8) ::
+  const res = decode_ecdh_public_spki(u8)
+  return nodejs_importPublicECDH(res)
+
+export const importECDH_raw = nodejs_importECDH_raw
+export function nodejs_importECDH_raw(u8) ::
+  const res = decode_ecdh_public_raw(u8)
+  return nodejs_importPublicECDH(res)
+
+function nodejs_importPublicECDH({crv, curve, x, y}) ::
+  const ecdh_obj = nodejs_createECDH(crv || curve)
+  ecdh_obj.setPublicKey @
+    encode_ecdh_public_raw({x, y})
+  return ecdh_obj
+
+function nodejs_importPrivateECDH({crv, curve, d}) ::
+  const ecdh_obj = nodejs_createECDH(crv || curve)
+  ecdh_obj.setPrivateKey @ d
+  return ecdh_obj
+

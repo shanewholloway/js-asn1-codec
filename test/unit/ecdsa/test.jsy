@@ -1,14 +1,12 @@
 const {assert, expect} = require('chai')
 
-import { test_ecdsa_nodejs, validate_ecdsa_nodejs } from './_test_ecdsa_nodejs.jsy'
-import { test_ecdsa_browser, validate_ecdsa_browser } from './_test_ecdsa_browser.jsy'
+/* BEGIN NODEJS ONLY */
+import { test_ecdsa, validate_ecdsa } from './_nodejs.jsy'
+/* END NODEJS ONLY */
 
-const test_ecdsa = 'undefined' === typeof window
-  ? test_ecdsa_nodejs : test_ecdsa_browser
-
-const validate_ecdsa = 'undefined' === typeof window
-  ? validate_ecdsa_nodejs : validate_ecdsa_browser
-
+/* BEGIN WEB ONLY */
+import { test_ecdsa, validate_ecdsa } from './_browser.jsy'
+/* END WEB ONLY */
 
 const chrome_instances = @[]
   {"curve":"P-256","hash_alg":"SHA-256","utf8_data":"ecdsa sign P-256 SHA-256","publicKey":"049058ca7b2ae3525949bbf6b40a2542d60c1832036f224e494de152d6d96868016bd6565d4cfc6d77cee327d61f45f63b3c255145f15cb1801d31e67e558c8c32","sig_raw":"c537c48ce3d40b6f9b80025c3016683689c4d481dd15ad99bcb8059302d7e3cf9880026b9fc4a6d3df523b235dc81c377600887eaf2ae4764ebb92555615cc3a","sig_asn1":"3046022100c537c48ce3d40b6f9b80025c3016683689c4d481dd15ad99bcb8059302d7e3cf0221009880026b9fc4a6d3df523b235dc81c377600887eaf2ae4764ebb92555615cc3a"}
@@ -33,7 +31,6 @@ const nodejs_instances = @[]
   {"curve":"P-521","hash_alg":"SHA-512","utf8_data":"ecdsa sign P-521 SHA-512","publicKey":"04012746f11a9f0f968ba565ded114157e84c9b1c4d3e4de4a894a0e169e7e9fd8f0fc9f7c3518a102b7147e24a044fcad90d45c1b89cec2cd23e1063ee54019e5ddae009330e12227dc2b60a18fa3a81f33075469867713a46065238007f3e5744e39fa50a26569c868ef8074b9d4c944d54d3510d496f7f3506bc057d3d563ac60bb8a4c","sig_raw":"0148178bcdd26cfbfcbe5b2f6c5f364fedb70136b363ce2c40a0975a104ced9b2f982c40350761cede6dee0e1cc1b3f42faf08840940224fd30652dde0cbd4317a57017f80394c54987f150f10384db40f3076e92b0dde32610f625ad2b0c2acceac7883d6cd7b29dcc9c16ccce79c7baa1f341c6a1be9b7c20f366554e6e694311eab23","sig_asn1":"30818802420148178bcdd26cfbfcbe5b2f6c5f364fedb70136b363ce2c40a0975a104ced9b2f982c40350761cede6dee0e1cc1b3f42faf08840940224fd30652dde0cbd4317a570242017f80394c54987f150f10384db40f3076e92b0dde32610f625ad2b0c2acceac7883d6cd7b29dcc9c16ccce79c7baa1f341c6a1be9b7c20f366554e6e694311eab23"}
 
 describe @ 'ecdsa', @=> ::
-  const is_browser = 'undefined' !== typeof window
 
   describe @ 'generated', @=> ::
     for const curve of ['P-256', 'P-384', 'P-521'] ::

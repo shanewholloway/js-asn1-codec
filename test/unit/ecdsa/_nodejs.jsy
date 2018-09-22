@@ -16,6 +16,7 @@ const hashAlgForName = @{}
   'SHA-512': 'SHA512', 'SHA512': 'SHA512',
 
 
+export const test_ecdsa = test_ecdsa_nodejs
 export async function test_ecdsa_nodejs(curve, hash_alg, utf8_data) ::
   const data = Buffer.from(utf8_data, 'utf8')
 
@@ -26,14 +27,15 @@ export async function test_ecdsa_nodejs(curve, hash_alg, utf8_data) ::
     .update(data)
     .sign @ ec_priv.encodePrivateKey()
 
-  const sig_raw = ecdsa.pack_ecdsa_raw @
-    ecdsa.unpack_ecdsa_asn1 @ sig_asn1
+  const sig_raw = ecdsa.encode_ecdsa_raw @
+    ecdsa.decode_ecdsa_asn1 @ sig_asn1
 
   return validate_ecdsa_nodejs @:
     curve, hash_alg, utf8_data,
     sig_raw, sig_asn1, publicKey
 
 
+export const validate_ecdsa = validate_ecdsa_nodejs
 export async function validate_ecdsa_nodejs({curve, hash_alg, utf8_data, sig_raw, sig_asn1, publicKey}) ::
   const data = Buffer.from(utf8_data, 'utf8')
 
@@ -58,8 +60,8 @@ export async function validate_ecdsa_nodejs({curve, hash_alg, utf8_data, sig_raw
     assert.equal @ ver, true, 'verify direct'
 
   ::
-    const sig_r_s = ecdsa.unpack_ecdsa_asn1 @ sig_asn1
-    const rt_sig = ecdsa.pack_ecdsa_asn1 @ sig_r_s
+    const sig_r_s = ecdsa.decode_ecdsa_asn1 @ sig_asn1
+    const rt_sig = ecdsa.encode_ecdsa_asn1 @ sig_r_s
 
     const ver = createVerify(hashAlgForName[hash_alg])
       .update(data)
@@ -69,8 +71,8 @@ export async function validate_ecdsa_nodejs({curve, hash_alg, utf8_data, sig_raw
     assert.equal @ u8_to_hex(rt_sig), u8_to_hex(sig_asn1), 'ECDSA ASN1 roundtrip'
 
   ::
-    const rt_sig = ecdsa.pack_ecdsa_asn1 @
-      ecdsa.unpack_ecdsa_raw @ sig_raw
+    const rt_sig = ecdsa.encode_ecdsa_asn1 @
+      ecdsa.decode_ecdsa_raw @ sig_raw
 
     const ver = createVerify(hashAlgForName[hash_alg])
       .update(data)

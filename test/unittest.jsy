@@ -1,4 +1,5 @@
 (require('source-map-support') || {install(){}}).install()
 
-import './unit/ecdsa/test_ecdsa.jsy'
+import './unit/ecdh/test.jsy'
+import './unit/ecdsa/test.jsy'
 

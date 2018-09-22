@@ -17,6 +17,10 @@ export function u8_to_base64(u8) ::
     res += _fromCharCode(u8[i])
   return btoa(res)
 
+export function u8_to_base64url(u8) ::
+  return u8_to_base64(u8)
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+
 const _charCodeAt = ''.charCodeAt
 export function base64_to_u8(str_b64) ::
   const sz = atob @ str_b64.replace(/-/g, '+').replace(/_/g, '/')

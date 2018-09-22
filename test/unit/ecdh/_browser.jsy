@@ -1,0 +1,68 @@
+const { assert, expect } = require('chai')
+
+import * as ecdh from 'asn1-codec/esm/web/ecdh'
+import { u8_to_hex, hex_to_u8, base64_to_u8 } from 'asn1-codec/esm/web/u8_utils.js'
+
+const test_ecdh_format = @{}
+  jwk(jwk) ::
+    const res = ecdh.decode_ecdh_jwk(jwk)
+    const rt_jwk = ecdh.encode_ecdh_jwk(res)
+
+    assert.equal @ jwk.d, rt_jwk.d, 'JWK.d roundtrip mismatch'
+    assert.equal @ jwk.x, rt_jwk.x, 'JWK.x roundtrip mismatch'
+    assert.equal @ jwk.y, rt_jwk.y, 'JWK.y roundtrip mismatch'
+
+  pkcs8(ab) ::
+    const orig = u8_to_hex @ ab
+
+    const res = ecdh.decode_ecdh_private_pkcs8(ab)
+    const rt_u8 = ecdh.encode_ecdh_private_pkcs8(res)
+
+    const rt = u8_to_hex @ rt_u8
+
+    assert.equal @ rt, orig, 'PKCS8 roundtrip mismatch'
+
+  spki(ab) ::
+    const orig = u8_to_hex @ ab
+
+    const res = ecdh.decode_ecdh_public_spki(ab)
+    const rt_u8 = ecdh.encode_ecdh_public_spki(res)
+
+    const rt = u8_to_hex @ rt_u8
+    assert.equal @ rt, orig, 'SPKI roundtrip mismatch'
+
+  raw(ab) ::
+    const orig = u8_to_hex @ ab
+
+    const res = ecdh.decode_ecdh_public_raw(ab)
+    const rt_u8 = ecdh.encode_ecdh_public_raw(res)
+
+    const rt = u8_to_hex @ rt_u8
+    assert.equal @ rt, orig, 'RAW roundtrip mismatch'
+
+
+export const test_ecdh = test_ecdh_browser
+export async function test_ecdh_browser(keyKind, curve, format) ::
+  const ec_alg = @{} name: 'ECDH', namedCurve: curve
+
+  const ecdh_obj = await crypto.subtle.generateKey @
+    ec_alg, true, @[] 'deriveKey', 'deriveBits'
+
+  const exp = await crypto.subtle.exportKey @ format, ecdh_obj[keyKind]
+  test_ecdh_format[format] @ exp
+
+  //console.log @ JSON.stringify @: keyKind, curve, format, exported: exp
+
+
+export const validate_ecdh = validate_ecdh_browser
+export async function validate_ecdh_browser({keyKind, curve, format, exported}) ::
+  const key_usages = 'publicKey' === keyKind ? [] : [ 'deriveBits' ]
+
+  if 'string' === typeof exported ::
+    exported = hex_to_u8(exported).buffer
+
+  const ec_alg = @{} name: 'ECDH', namedCurve: curve
+
+  await crypto.subtle.importKey @ format, exported,
+    ec_alg, false, key_usages
+

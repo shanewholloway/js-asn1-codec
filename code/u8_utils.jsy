@@ -6,6 +6,9 @@ export function hex_to_u8(hex) ::
   return u8
 
 export function u8_to_hex(u8, sep) ::
+  if undefined === u8.buffer ::
+    u8 = new Uint8Array(u8)
+
   return Array
     .from @ u8, v => v.toString(16).padStart(2, '0')
     .join @ null != sep ? sep : ''
@@ -13,6 +16,8 @@ export function u8_to_hex(u8, sep) ::
 export function u8_concat(parts) ::
   let i=0, len=0
   for const b of parts ::
+    if ! b.byteLength ::
+      console.log @ "WA?", b, parts
     len += b.byteLength
 
   const u8 = new Uint8Array(len)

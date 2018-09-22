@@ -1,0 +1,167 @@
+import { asn1_u8_decode } from './asn1_decode.jsy'
+import { asn1_u8_encode } from './asn1_encode.jsy'
+import { u8_to_hex, u8_concat } from './u8_utils.jsy'
+
+const hex_object_ids = @{}
+  '2a8648ce3d0201': @{} kty: 'EC'
+  '2a8648ce3d030107': @{} crv: 'P-256'
+  '2b81040022': @{} crv: 'P-384'
+  '2b81040023': @{} crv: 'P-521'
+
+const u8_zero = new Uint8Array @# 0
+const u8_oid_ecdh = new Uint8Array @# 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01
+const u8_oid_curves = @{}
+  'P-256': new Uint8Array @# 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07
+  'P-384': new Uint8Array @# 0x2b, 0x81, 0x04, 0x00, 0x22
+  'P-521': new Uint8Array @# 0x2b, 0x81, 0x04, 0x00, 0x23
+
+export function decode_ecdh_private_pkcs8(u8) ::
+  u8 = new Uint8Array(u8.buffer || u8)
+
+  const [int0, meta, body] = asn1_u8_decode(u8).parse_parts()
+  if 1 !== int0.content.byteLength || 0 !== int0.content[0] ::
+    throw new Error @ 'Invalid PKCS8 encoding'
+
+  const res = {}
+  for const p of meta ::
+    if 6 === p.id ::
+      const pa = hex_object_ids[p.hex()]
+      if undefined === pa ::
+        throw new Error @ 'Unrecognized PKCS8 OID'
+
+      Object.assign @ res, pa
+
+  if 'EC' !== res.kty || undefined === res.crv ::
+    throw new Error @ 'Invalid EC PKCS8 encoding'
+
+  const [int1, body_d, body_pub] = body.first_part()
+  if 1 !== int1.content.byteLength || 1 !== int1.content[0] ::
+    throw new Error @ 'Invalid PKCS8 body encoding'
+
+  res.d = body_d.content
+  let pub = body_pub.first_part().content
+  if 0 !== pub[0] || 4 !== pub[1] ::
+    throw new Error @ 'Invalid PKCS8 pub body encoding'
+
+  pub = pub.subarray(2)
+  res.x = pub.subarray(0, pub.byteLength >> 1)
+  res.y = pub.subarray(pub.byteLength >> 1)
+  return res
+
+export function encode_ecdh_private_pkcs8({curve, crv, d, x, y}) ::
+  const u8_meta = asn1_u8_encode @#
+    0x30, // sequence
+    @[] 0x06, u8_oid_ecdh
+    @[] 0x06, u8_oid_curves[crv || curve]
+
+  const u8_body = asn1_u8_encode @#
+    0x30, // sequence
+    @[] 0x02, new Uint8Array([1])
+    @[] 0x04, d
+    @[] 0xa1, // custom composite
+      @[] 0x03, u8_concat @# new Uint8Array([0, 4]), x, y
+
+  return asn1_u8_encode @#
+    0x30, // sequence
+    @[] 0x02, new Uint8Array([0])
+    u8_meta
+    @[] 0x04, u8_body // octect
+
+
+
+
+
+export function decode_ecdh_public_spki(u8) ::
+  u8 = new Uint8Array(u8.buffer || u8)
+
+  const [meta, body] = asn1_u8_decode(u8).parse_parts()
+
+  const res = {}
+  for const p of meta ::
+    if 6 === p.id ::
+      const pa = hex_object_ids[p.hex()]
+      if undefined === pa ::
+        throw new Error @ 'Unrecognized SPKI OID'
+
+      Object.assign @ res, pa
+
+  if 'EC' !== res.kty || undefined === res.crv ::
+    throw new Error @ 'Invalid EC SPKI encoding'
+
+  let pub = body.content
+  if 0 !== pub[0] || 4 !== pub[1] ::
+    throw new Error @ 'Invalid SPKI pub body encoding'
+
+  pub = pub.subarray(2)
+  res.x = pub.subarray(0, pub.byteLength >> 1)
+  res.y = pub.subarray(pub.byteLength >> 1)
+  return res
+
+export function encode_ecdh_public_spki({curve, crv, x, y}) ::
+  const u8_meta = asn1_u8_encode @#
+    0x30, // sequence
+    @[] 0x06, u8_oid_ecdh
+    @[] 0x06, u8_oid_curves[crv || curve]
+
+  const u8_body = u8_concat @# new Uint8Array([0, 4]), x, y
+
+  return asn1_u8_encode @#
+    0x30, // sequence
+    u8_meta
+    @[] 0x03, u8_body // bitstring
+
+
+
+
+
+export function decode_ecdh_public_raw(u8) ::
+  u8 = new Uint8Array(u8.buffer || u8)
+  const idx_y = 1 + (u8.byteLength >> 1)
+
+  if 4 !== u8[0] ::
+    throw new Error @ 'Invalid ECDH RAW public key encoding'
+
+  const crv = @
+      65 === u8.length ? 'P-256'
+    : 97 === u8.length ? 'P-384'
+    : 133 === u8.length ? 'P-521'
+    : 'unknown'
+
+  return @{}
+    kty: 'EC', crv,
+    x: u8.subarray(1, idx_y)
+    y: u8.subarray(idx_y)
+
+export function encode_ecdh_public_raw({x, y}) ::
+  return u8_concat @# new Uint8Array([4]), x, y
+
+
+
+
+export function bind_decode_ecdh_jwk(base64_to_u8) ::
+  return function decode_ecdh_jwk(jwk) ::
+    const {kty, crv, x, y, d} = jwk
+    const res = @{} kty, crv
+
+    if d ::
+      res.d = base64_to_u8(d)
+    res.x = base64_to_u8(x)
+    res.y = base64_to_u8(y)
+    return res
+
+export function bind_encode_ecdh_jwk(u8_to_base64url) ::
+  const d_len = {'P-256': 32, 'P-384': 48, 'P-521': 66}
+
+  return function encode_ecdh_jwk({curve, crv, x, y, d}) ::
+    if ! crv :: crv = curve
+    const jwk = @{} kty: 'EC', crv
+
+    if d ::
+      const gap = d_len[crv] - d.length
+      if gap :: // happens primarily with P-521
+        d = u8_concat @# new Uint8Array(gap), d
+      jwk.d = u8_to_base64url @ d
+    jwk.x = u8_to_base64url(x)
+    jwk.y = u8_to_base64url(y)
+    return jwk
+
