@@ -8,7 +8,6 @@ const hex_object_ids = @{}
   '2b81040022': @{} crv: 'P-384'
   '2b81040023': @{} crv: 'P-521'
 
-const u8_zero = new Uint8Array @# 0
 const u8_oid_ecdh = new Uint8Array @# 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01
 const u8_oid_curves = @{}
   'P-256': new Uint8Array @# 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07
@@ -49,23 +48,26 @@ export function decode_ecdh_private_pkcs8(u8) ::
   return res
 
 export function encode_ecdh_private_pkcs8({curve, crv, d, x, y}) ::
-  const u8_meta = asn1_u8_encode @#
+  const u8_meta = @[]
     0x30, // sequence
     @[] 0x06, u8_oid_ecdh
     @[] 0x06, u8_oid_curves[crv || curve]
 
-  const u8_body = asn1_u8_encode @#
+  const u8_body = @[]
     0x30, // sequence
     @[] 0x02, new Uint8Array([1])
     @[] 0x04, d
-    @[] 0xa1, // custom composite
-      @[] 0x03, u8_concat @# new Uint8Array([0, 4]), x, y
+
+  if x ::
+    u8_body.push @
+      @[] 0xa1, // custom composite
+        @[] 0x03, u8_concat @# new Uint8Array([0, 4]), x, y
 
   return asn1_u8_encode @#
     0x30, // sequence
     @[] 0x02, new Uint8Array([0])
-    u8_meta
-    @[] 0x04, u8_body // octect
+    asn1_u8_encode(u8_meta)
+    @[] 0x04, asn1_u8_encode(u8_body) // octect
 
 
 

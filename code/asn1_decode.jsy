@@ -1,13 +1,16 @@
 import { u8_to_hex } from './u8_utils.jsy'
 
 export default asn1_u8_decode
-export function asn1_u8_decode(u8) ::
-  for const node of asn1_u8_decode_many(u8) ::
+export function asn1_u8_decode(u8, asn1_node_proto) ::
+  for const node of asn1_u8_decode_many(u8, asn1_node_proto) ::
     return node
 
-export function *asn1_u8_decode_many(u8) ::
+export function *asn1_u8_decode_many(u8, asn1_node_proto) ::
   if ! u8 instanceof Uint8Array ::
     u8 = new Uint8Array @ u8.buffer || u8
+
+  if undefined === asn1_node_proto ::
+    asn1_node_proto = asn1_node
 
   let i=0
   while i < u8.byteLength ::
@@ -35,13 +38,11 @@ export function *asn1_u8_decode_many(u8) ::
       content = u8.subarray(i, i + len_content)
       i += len_content
 
-    const node = @{} __proto__: asn1_node,
+    const node = @{} __proto__: asn1_node_proto,
       id, byteLength: content.byteLength
 
     Object.defineProperties @ node, @{}
       content: @{} value: content
-
-    //node.hex = u8_to_hex @ content, ' '
 
     yield node
 
@@ -54,7 +55,6 @@ export const asn1_node = @{}
   get constructed() :: return 0 !== (0x20 & this.id)
 
   hex() :: return u8_to_hex @ this.content
-  dbg() :: return `id: ${this.id} len: ${this.byteLength} hex: ${this.hex()}`
 
   [Symbol.iterator]() :: return this.iter_parts()
   iter_parts(override) ::

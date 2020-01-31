@@ -3,9 +3,23 @@ import rpi_jsy from 'rollup-plugin-jsy-lite'
 const configs = []
 export default configs
 
-const sourcemap = 'inline'
-const plugins = [rpi_jsy()]
-const plugins_min = plugins.slice()
+const sourcemap = true
+
+const plugins_base = [ ]
+
+const plugins_nodejs = [
+  rpi_jsy({defines: {PLAT_NODEJS: true}})
+].concat(plugins_base)
+
+const plugins_web = [
+  rpi_jsy({defines: {PLAT_WEB: true}})
+].concat(plugins_base)
+
+const plugins = [
+  rpi_jsy()
+].concat(plugins_base)
+
+const plugins_min = plugins_web.slice()
 
 //import { terser as rpi_terser } from 'rollup-plugin-terser'
 //plugins_min.push(rpi_terser({}))
@@ -36,7 +50,7 @@ function add_node_jsy(srcname, {outname, name, exports}={}) {
   if (!exports) exports = 'named'
 
   configs.push({
-    input: `code/${srcname}.jsy`, plugins,
+    input: `code/${srcname}.jsy`, plugins: plugins_nodejs,
     output: [
       { file: `esm/${outname}.js`, format: 'es', sourcemap },
       { file: `cjs/${outname}.js`, format: 'cjs', exports, sourcemap },
@@ -49,7 +63,7 @@ function add_web_jsy(srcname, {outname, name, exports}={}) {
   if (!exports) exports = 'named'
 
   configs.push(
-    { input: `code/${srcname}.jsy`, plugins,
+    { input: `code/${srcname}.jsy`, plugins: plugins_web,
       output: [
         { file: `esm/${outname}.js`, format: 'es', sourcemap },
         { file: `umd/${outname}.dbg.js`, format: 'umd', name, exports, sourcemap },

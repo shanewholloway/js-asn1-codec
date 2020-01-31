@@ -1,14 +1,14 @@
-import rpi_resolve from 'rollup-plugin-node-resolve'
-import rpi_replace from 'rollup-plugin-replace'
+import rpi_resolve from '@rollup/plugin-node-resolve'
+import rpi_replace from '@rollup/plugin-replace'
+import rpi_commonjs from '@rollup/plugin-commonjs'
 import rpi_strip_code from 'rollup-plugin-strip-code'
-import rpi_commonjs from 'rollup-plugin-commonjs'
 import rpi_jsy from 'rollup-plugin-jsy-lite'
 
 const sourcemap = 'inline'
 
 const plugins = [
   rpi_jsy(),
-  rpi_resolve({ module: true, main: true }),
+  rpi_resolve(),
   rpi_commonjs({ include: 'node_modules/**'}),
 ]
 
