@@ -1,24 +1,13 @@
 const {createECDH: _createECDH} = require('crypto')
 
-export * from '../ecdh.jsy'
-import { base64_to_u8, u8_to_base64url } from './u8_utils.jsy'
-import { bind_decode_ecdh_jwk, bind_encode_ecdh_jwk } from '../ecdh.jsy'
-import { decode_ecdh_private_pkcs8, encode_ecdh_private_pkcs8 } from '../ecdh.jsy'
-import { decode_ecdh_public_spki, encode_ecdh_public_spki } from '../ecdh.jsy'
-import { decode_ecdh_public_raw, encode_ecdh_public_raw } from '../ecdh.jsy'
-
-export const decode_ecdh_jwk = bind_decode_ecdh_jwk(base64_to_u8)
-export const encode_ecdh_jwk = bind_encode_ecdh_jwk(u8_to_base64url)
-
-
-const curveForName = @{}
+const _ecc_curveForName = @{}
   'P-256': 'prime256v1', 'prime256v1': 'prime256v1', 'secp256r1': 'prime256v1',
   'P-384': 'secp384r1', 'secp384r1': 'secp384r1',
   'P-521': 'secp521r1', 'secp521r1': 'secp521r1',
 
 export const createECDH = nodejs_createECDH
 export function nodejs_createECDH(curve) ::
-  curve = curveForName[curve]
+  curve = _ecc_curveForName[curve]
   const ecdh_obj = _createECDH @ curve
   ecdh_obj.curve = curve
   return ecdh_obj
