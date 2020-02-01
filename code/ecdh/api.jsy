@@ -1,6 +1,6 @@
 #IF PLAT_NODEJS
-  export * from './ecdh_api_nodejs.jsy'
+  export * from './nodejs/api.jsy'
 
 #ELIF PLAT_WEB
-  export * from './ecdh_api_browser.jsy'
+  export * from './browser/api.jsy'
 

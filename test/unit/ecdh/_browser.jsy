@@ -44,12 +44,9 @@ const test_ecdh_format = @{}
 
 export const test_ecdh = test_ecdh_browser
 export async function test_ecdh_browser(keyKind, curve, format) ::
-  const ec_alg = @{} name: 'ECDH', namedCurve: curve
-
-  const ecdh_obj = await crypto.subtle.generateKey @
-    ec_alg, true, @[] 'deriveKey', 'deriveBits'
-
-  const exp = await crypto.subtle.exportKey @ format, ecdh_obj[keyKind]
+  const ecdh_new_keys = await ecdh.ecdh_generateKey(curve)
+  const ecdh_key = ecdh_new_keys[keyKind]
+  const exp = await ecdh.ecdh_exportKey(format, ecdh_key)
   test_ecdh_format[format] @ exp
 
   //console.log @ JSON.stringify @: keyKind, curve, format, exported: exp
@@ -57,13 +54,11 @@ export async function test_ecdh_browser(keyKind, curve, format) ::
 
 export const validate_ecdh = validate_ecdh_browser
 export async function validate_ecdh_browser({keyKind, curve, format, exported}) ::
-  const key_usages = 'publicKey' === keyKind ? [] : [ 'deriveBits' ]
-
   if 'string' === typeof exported ::
     exported = hex_to_u8(exported).buffer
 
-  const ec_alg = @{} name: 'ECDH', namedCurve: curve
-
-  await crypto.subtle.importKey @ format, exported,
-    ec_alg, false, key_usages
+  if 'publicKey' === keyKind ::
+    await ecdh.ecdh_importPublicKey(curve, format, exported)
+  else ::
+    await ecdh.ecdh_importPrivateKey(curve, format, exported)
 

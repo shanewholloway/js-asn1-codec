@@ -7,20 +7,24 @@ import { hex_to_u8 } from 'u8-utils/esm/index.js'
 
 export const test_ecdh = test_ecdh_nodejs
 export async function test_ecdh_nodejs(keyKind, curve, format) ::
-  const ecdh_obj = ecdh.ecdh_generateKey(curve)[keyKind]
-  const exp = ecdh.ecdh_exportKey(ecdh_obj, format)
-  const rt_ecdh_obj = ecdh.ecdh_importKey(format, exp)
+  const ecdh_new_keys = await ecdh.ecdh_generateKey(curve)
+  const ecdh_key = ecdh_new_keys[keyKind]
+  const exp = await ecdh.ecdh_exportKey(format, ecdh_key)
+
+  const rt_ecdh_key = 'publicKey' === keyKind
+    ? await ecdh.ecdh_importPublicKey(curve, format, exp)
+    : await ecdh.ecdh_importPrivateKey(curve, format, exp)
 
   //console.log @ JSON.stringify @: keyKind, curve, format, exported: exp
 
   ::
     assert.equal @
-      0, Buffer.compare @ ecdh_obj.getPublicKey(), rt_ecdh_obj.getPublicKey()
+      0, Buffer.compare @ ecdh_key.getPublicKey(), rt_ecdh_key.getPublicKey()
       `Roundtrip public key mismatch for curve: ${curve} format ${format} ${keyKind}`
 
   if 'privateKey' === keyKind ::
     assert.equal @
-      0, Buffer.compare @ ecdh_obj.getPrivateKey(), rt_ecdh_obj.getPrivateKey()
+      0, Buffer.compare @ ecdh_key.getPrivateKey(), rt_ecdh_key.getPrivateKey()
       `Roundtrip private key mismatch for curve: ${curve} format ${format} ${keyKind}`
 
 
@@ -29,4 +33,8 @@ export async function validate_ecdh_nodejs({keyKind, curve, format, exported}) :
   if 'string' === typeof exported ::
     exported = hex_to_u8(exported).buffer
 
-  const ecdh_obj = await ecdh.ecdh_importKey @ format, exported
+  if 'publicKey' === keyKind ::
+    await ecdh.ecdh_importPublicKey(curve, format, exported)
+  else ::
+    await ecdh.ecdh_importPrivateKey(curve, format, exported)
+
