@@ -1,4 +1,4 @@
-import { asn1_u8_decode } from 'asn1-codec/esm/asn1_decode.mjs'
+import { asn1_u8_decode } from '../asn1_decode.jsy'
 
 
 export function decode_ecc_public_spki(u8) ::

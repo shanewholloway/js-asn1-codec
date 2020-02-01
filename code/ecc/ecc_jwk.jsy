@@ -1,4 +1,4 @@
-import { base64_to_u8, u8_to_base64url } from 'u8-utils'
+import { base64_to_u8, u8_to_base64url } from 'u8-utils/esm/base64.js'
 
 
 export function decode_ecc_jwk(jwk) ::

@@ -1,5 +1,5 @@
-import { u8_concat } from 'u8-utils'
-import { asn1_u8_encode } from 'asn1-codec/esm/asn1_encode.mjs'
+import { u8_concat } from 'u8-utils/esm/buffer.js'
+import { asn1_u8_encode } from '../asn1_encode.jsy'
 
 
 export function encode_ecc_public_spki(ecc_obj) ::

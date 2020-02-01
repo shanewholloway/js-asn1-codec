@@ -1,4 +1,4 @@
-import { u8_concat } from 'u8-utils'
+import { u8_concat } from 'u8-utils/esm/buffer.js'
 
 
 export function asn1_der_positive_int(v) ::
