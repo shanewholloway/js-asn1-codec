@@ -1,20 +1,15 @@
 const { createECDH } = require('crypto')
 const { assert, expect } = require('chai')
 
-import * as ecdh from 'asn1-codec/esm/nodejs/ecdh'
-import { u8_to_hex, hex_to_u8 } from 'asn1-codec/esm/nodejs/u8_utils.js'
+import * as ecc from 'asn1-codec/esm/ecc/index.mjs'
+import * as ecdh from 'asn1-codec/esm/ecdh/api.mjs'
+import { hex_to_u8 } from 'u8-utils/esm/index.js'
 
 export const test_ecdh = test_ecdh_nodejs
 export async function test_ecdh_nodejs(keyKind, curve, format) ::
-  let ecdh_obj = ecdh.generateECDH(curve)
-  if 'publicKey' === keyKind ::
-    // clone with only the publicKey
-    const pubkey = ecdh_obj.getPublicKey()
-    ecdh_obj = ecdh.createECDH(curve)
-    ecdh_obj.setPublicKey(pubkey)
-
-  const exp = ecdh.exportECDH @ ecdh_obj, format
-  const rt_ecdh_obj = ecdh.importECDH(format, exp)
+  const ecdh_obj = ecdh.ecdh_generateKey(curve)[keyKind]
+  const exp = ecdh.ecdh_exportKey(ecdh_obj, format)
+  const rt_ecdh_obj = ecdh.ecdh_importKey(format, exp)
 
   //console.log @ JSON.stringify @: keyKind, curve, format, exported: exp
 
@@ -34,4 +29,4 @@ export async function validate_ecdh_nodejs({keyKind, curve, format, exported}) :
   if 'string' === typeof exported ::
     exported = hex_to_u8(exported).buffer
 
-  const ecdh_obj = await ecdh.importECDH @ format, exported
+  const ecdh_obj = await ecdh.ecdh_importKey @ format, exported

@@ -4,8 +4,7 @@ export function asn1_u8_decode(u8, asn1_node_proto) ::
     return node
 
 export function *asn1_u8_decode_many(u8, asn1_node_proto) ::
-  if ! u8 instanceof Uint8Array ::
-    u8 = new Uint8Array @ u8.buffer || u8
+  u8 = asn1_u8(u8)
 
   if undefined === asn1_node_proto ::
     asn1_node_proto = asn1_node
@@ -100,4 +99,14 @@ export const asn1_identifiers_byTag = @[]
 export function with_asn1_identifiers(node) ::
   return node.walk @ n =>
     n.name = asn1_identifiers_byTag[n.tag]
+
+
+export function asn1_u8(u8) ::
+  if u8 instanceof Uint8Array ::
+    return u8
+  if u8 instanceof ArrayBuffer ::
+    return new Uint8Array(u8)
+
+  throw new TypeError @
+    'Expected Uint8Array or ArrayBuffer'
 

@@ -1,6 +1,7 @@
 const {assert, expect} = require('chai')
-import * as ecdsa from 'asn1-codec/esm/ecdsa.js'
-import { u8_to_hex, hex_to_u8 } from 'asn1-codec/esm/u8_utils.js'
+
+import * as ecdsa from 'asn1-codec/esm/web/ecdsa/index.js'
+import { u8_to_hex, hex_to_u8 } from 'u8-utils/esm/web/index.js'
 
 export const test_ecdsa = test_ecdsa_browser
 export async function test_ecdsa_browser(curve, hash_alg, utf8_data) ::

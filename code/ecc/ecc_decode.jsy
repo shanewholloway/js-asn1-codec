@@ -1,18 +1,22 @@
-import { asn1_u8_decode } from '../asn1_decode.jsy'
+import { asn1_u8_decode, asn1_u8 } from '../asn1_decode.jsy'
 
 
 export function decode_ecc_public_spki(u8) ::
-  const [meta, body] = asn1_u8_decode(u8).parse_parts()
+  u8 = asn1_u8(u8)
+
+  const [meta, body_pub] = asn1_u8_decode(u8).parse_parts()
 
   const res = decode_ecc_meta(meta)
   if 'EC' !== res.kty || undefined === res.crv ::
     throw new Error @ 'Invalid EC SPKI encoding'
 
-  return decode_ecc_public_raw(body.content, res)
+  return decode_ecc_public_raw(body_pub.content, res)
 
 
 export function decode_ecc_private_pkcs8(u8) ::
-  const [int0, meta, body] = asn1_u8_decode(u8).parse_parts()
+  u8 = asn1_u8(u8)
+
+  const [int0, meta, outer_body] = asn1_u8_decode(u8).parse_parts()
   if 1 !== int0.content.byteLength || 0 !== int0.content[0] ::
     throw new Error @ 'Invalid PKCS8 encoding'
 
@@ -20,13 +24,14 @@ export function decode_ecc_private_pkcs8(u8) ::
   if 'EC' !== res.kty || undefined === res.crv ::
     throw new Error @ 'Invalid EC PKCS8 encoding'
 
-  const [int1, body_d, body_pub] = body.first_part()
+  const [int1, body_d, inner_body] = outer_body.first_part()
   if 1 !== int1.content.byteLength || 1 !== int1.content[0] ::
     throw new Error @ 'Invalid PKCS8 body encoding'
 
   res.d = body_d.content
 
-  return decode_ecc_public_raw(body.content, res)
+  const body_pub = asn1_u8_decode(inner_body.content)
+  return decode_ecc_public_raw(body_pub.content, res)
 
 
 const _crv_by_byteLen = new Map @#
@@ -35,6 +40,8 @@ const _crv_by_byteLen = new Map @#
   [132, 'P-521'], [133, 'P-521'], [134, 'P-521'], [135, 'P-521'],
 
 export function decode_ecc_public_raw(u8, res) ::
+  u8 = asn1_u8(u8)
+
   if undefined === res ::
     if 4 !== u8[0] ::
       throw new Error @ 'Invalid EC public key encoding'

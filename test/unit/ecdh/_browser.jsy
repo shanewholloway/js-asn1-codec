@@ -1,12 +1,13 @@
 const { assert, expect } = require('chai')
 
-import * as ecdh from 'asn1-codec/esm/web/ecdh'
-import { u8_to_hex, hex_to_u8, base64_to_u8 } from 'asn1-codec/esm/web/u8_utils.js'
+import * as ecc from 'asn1-codec/esm/web/ecc/index.js'
+import * as ecdh from 'asn1-codec/esm/web/ecdh/api.js'
+import { u8_to_hex, hex_to_u8 } from 'u8-utils/esm/web/index.js'
 
 const test_ecdh_format = @{}
   jwk(jwk) ::
-    const res = ecdh.decode_ecdh_jwk(jwk)
-    const rt_jwk = ecdh.encode_ecdh_jwk(res)
+    const res = ecc.decode_ecc_jwk(jwk)
+    const rt_jwk = ecc.encode_ecc_jwk(res)
 
     assert.equal @ jwk.d, rt_jwk.d, 'JWK.d roundtrip mismatch'
     assert.equal @ jwk.x, rt_jwk.x, 'JWK.x roundtrip mismatch'
@@ -15,8 +16,8 @@ const test_ecdh_format = @{}
   pkcs8(ab) ::
     const orig = u8_to_hex @ ab
 
-    const res = ecdh.decode_ecdh_private_pkcs8(ab)
-    const rt_u8 = ecdh.encode_ecdh_private_pkcs8(res)
+    const res = ecc.decode_ecc_private_pkcs8(ab)
+    const rt_u8 = ecc.encode_ecc_private_pkcs8(res)
 
     const rt = u8_to_hex @ rt_u8
 
@@ -25,8 +26,8 @@ const test_ecdh_format = @{}
   spki(ab) ::
     const orig = u8_to_hex @ ab
 
-    const res = ecdh.decode_ecdh_public_spki(ab)
-    const rt_u8 = ecdh.encode_ecdh_public_spki(res)
+    const res = ecc.decode_ecc_public_spki(ab)
+    const rt_u8 = ecc.encode_ecc_public_spki(res)
 
     const rt = u8_to_hex @ rt_u8
     assert.equal @ rt, orig, 'SPKI roundtrip mismatch'
@@ -34,8 +35,8 @@ const test_ecdh_format = @{}
   raw(ab) ::
     const orig = u8_to_hex @ ab
 
-    const res = ecdh.decode_ecdh_public_raw(ab)
-    const rt_u8 = ecdh.encode_ecdh_public_raw(res)
+    const res = ecc.decode_ecc_public_raw(ab)
+    const rt_u8 = ecc.encode_ecc_public_raw(res)
 
     const rt = u8_to_hex @ rt_u8
     assert.equal @ rt, orig, 'RAW roundtrip mismatch'

@@ -2,8 +2,8 @@ const {assert, expect} = require('chai')
 const {createSign, createVerify} = require('crypto')
 const ec_pem = require('ec-pem')
 
-import * as ecdsa from 'asn1-codec/esm/ecdsa.js'
-import { u8_to_hex, hex_to_u8 } from 'asn1-codec/esm/u8_utils.js'
+import * as ecdsa from 'asn1-codec/esm/ecdsa/index.mjs'
+import { u8_to_hex, hex_to_u8 } from 'u8-utils/esm/index.js'
 
 const curveForName = @{}
   'P-256': 'prime256v1', 'prime256v1': 'prime256v1', 'secp256r1': 'prime256v1',

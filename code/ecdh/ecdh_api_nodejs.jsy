@@ -1,0 +1,12 @@
+const _ecc_curveForName = @{}
+  'P-256': 'prime256v1', 'prime256v1': 'prime256v1', 'secp256r1': 'prime256v1',
+  'P-384': 'secp384r1', 'secp384r1': 'secp384r1',
+  'P-521': 'secp521r1', 'secp521r1': 'secp521r1',
+
+export async function ecdh_generateKey(namedCurve) ::
+  namedCurve = _ecc_curveForName[namedCurve]
+
+export async function ecdh_exportKey(format, ecdh_key) ::
+
+export async function ecdh_importKey(namedCurve, format, u8_buffer) ::
+  namedCurve = _ecc_curveForName[namedCurve]

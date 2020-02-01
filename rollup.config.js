@@ -34,9 +34,11 @@ add_jsy('ecc/ecc_encode')
 add_jsy('ecc/ecc_decode')
 add_jsy('ecc/ecc_jwk')
 
-add_jsy('ecc/ecdsa/index')
-add_jsy('ecc/ecdsa/ecdsa_encode')
-add_jsy('ecc/ecdsa/ecdsa_decode')
+add_jsy('ecdsa/index')
+add_jsy('ecdsa/ecdsa_encode')
+add_jsy('ecdsa/ecdsa_decode')
+
+add_jsy('ecdh/api')
 
 //add_node_jsy('nodejs/ecdh')
 

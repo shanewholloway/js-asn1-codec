@@ -1,0 +1,6 @@
+#IF PLAT_NODEJS
+  export * from './ecdh_api_nodejs.jsy'
+
+#ELIF PLAT_WEB
+  export * from './ecdh_api_browser.jsy'
+
