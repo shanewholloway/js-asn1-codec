@@ -21,7 +21,7 @@ export function asn1_u8_encode(content_tree) ::
     all_parts[hdr_idx] = hdr
 
     if ! Number.isInteger(ident) || 0 > ident || ident > 255 ::
-      console.log @: ident, content_tree
+      // console.log @: ident, content_tree
       throw new Error @ 'Invalid ASN1 identifier'
 
     if 0x20 & id ::

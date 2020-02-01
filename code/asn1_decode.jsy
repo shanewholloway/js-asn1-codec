@@ -72,8 +72,8 @@ export const asn1_node = @{}
       if done :: return value
 
   *iter_walk(visitor) ::
-    if true === visitor ::
-      console.log @ this.dbg()
+    //if true === visitor ::
+    //  console.warn @ this
 
     let parts = null
     if 0x20 & this.id ::
