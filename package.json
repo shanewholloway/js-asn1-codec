@@ -1,6 +1,6 @@
 {
   "name": "asn1-codec",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ASN1 Codec for NodeJS and the Web",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
