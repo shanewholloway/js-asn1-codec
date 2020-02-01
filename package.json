@@ -18,12 +18,12 @@
     "umd/"
   ],
   "type": "module",
-  "main": "cjs/index.js",
-  "module": "esm/index.mjs",
-  "browser": "umd/asn1_codec.min.js",
+  "main": "./cjs/index.cjs",
+  "module": "./esm/index.mjs",
+  "browser": "./umd/asn1_codec.min.js",
   "exports": {
     "import": "./esm/index.mjs",
-    "require": "./cjs/index.js"
+    "require": "./cjs/index.cjs"
   },
   "dependencies": {},
   "devDependencies": {

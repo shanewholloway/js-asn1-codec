@@ -1,0 +1,16 @@
+const { assert, expect } = require('chai')
+
+import {asn1_u8_encode, asn1_u8_decode, asn1_u8_decode_many} from 'asn1-codec/esm/index.mjs'
+const umd_or_module = require('asn1-codec')
+
+describe @ 'smoke', @::
+  it @ 'esm basic', @::
+    assert.equal @ typeof asn1_u8_encode, 'function'
+    assert.equal @ typeof asn1_u8_decode, 'function'
+    assert.equal @ typeof asn1_u8_decode_many, 'function'
+
+  it @ 'commonjs / web', @::
+    assert @ umd_or_module.asn1_u8_encode, 'object'
+    assert @ umd_or_module.asn1_u8_decode, 'object'
+    assert @ umd_or_module.asn1_u8_decode_many, 'object'
+

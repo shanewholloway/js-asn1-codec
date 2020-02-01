@@ -1,12 +1,11 @@
 const { assert, expect } = require('chai')
 
-/* BEGIN NODEJS ONLY */
-import { test_ecdh, validate_ecdh } from './_nodejs.jsy'
-/* END NODEJS ONLY */
+#IF PLAT_NODEJS
+  import { test_ecdh, validate_ecdh } from './_nodejs.jsy'
 
-/* BEGIN WEB ONLY */
-import { test_ecdh, validate_ecdh } from './_browser.jsy'
-/* END WEB ONLY */
+#ELIF PLAT_WEB
+  import { test_ecdh, validate_ecdh } from './_browser.jsy'
+
 
 const chrome_instances = @[]
   {"keyKind":"privateKey","curve":"P-256","format":"jwk","exported":{"crv":"P-256","d":"h7BsjjMyXNqWmfRR6luR4jrwLbTXIj2nPU3NuRSRupQ","ext":true,"key_ops":["deriveKey","deriveBits"],"kty":"EC","x":"zrR2jSISYGN52LaeV3HyJYqOo-I5BiwEwe3A3GB-sl8","y":"ZE7qO2FKvVtl9uH3Q_dbvxiKSUEdMDAxXNh1guqCCm0"}}

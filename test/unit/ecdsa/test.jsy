@@ -1,12 +1,11 @@
 const {assert, expect} = require('chai')
 
-/* BEGIN NODEJS ONLY */
-import { test_ecdsa, validate_ecdsa } from './_nodejs.jsy'
-/* END NODEJS ONLY */
+#IF PLAT_NODEJS
+  import { test_ecdsa, validate_ecdsa } from './_nodejs.jsy'
 
-/* BEGIN WEB ONLY */
-import { test_ecdsa, validate_ecdsa } from './_browser.jsy'
-/* END WEB ONLY */
+#ELIF PLAT_WEB
+  import { test_ecdsa, validate_ecdsa } from './_browser.jsy'
+
 
 const chrome_instances = @[]
   {"curve":"P-256","hash_alg":"SHA-256","utf8_data":"ecdsa sign P-256 SHA-256","publicKey":"049058ca7b2ae3525949bbf6b40a2542d60c1832036f224e494de152d6d96868016bd6565d4cfc6d77cee327d61f45f63b3c255145f15cb1801d31e67e558c8c32","sig_raw":"c537c48ce3d40b6f9b80025c3016683689c4d481dd15ad99bcb8059302d7e3cf9880026b9fc4a6d3df523b235dc81c377600887eaf2ae4764ebb92555615cc3a","sig_asn1":"3046022100c537c48ce3d40b6f9b80025c3016683689c4d481dd15ad99bcb8059302d7e3cf0221009880026b9fc4a6d3df523b235dc81c377600887eaf2ae4764ebb92555615cc3a"}

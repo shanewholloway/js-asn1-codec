@@ -18,13 +18,13 @@ const plugins_nodejs = [
 const plugins_web = [
   rpi_jsy({defines: {PLAT_WEB: true}}),
   ... plugins ]
-const plugins_min = null && [
+const plugins_min = [
   ... plugins_web,
   rpi_terser({}) ]
 
 
 add_jsy('index', pkg_name)
-add_jsy('asn1_codec_plus')
+add_jsy('asn1_codec_plus', pkg_name)
 
 add_jsy('asn1_decode')
 add_jsy('asn1_encode')
@@ -49,8 +49,8 @@ function add_jsy(src_name, module_name) {
       input: `code/${src_name}.jsy`,
       plugins: plugins_nodejs, external,
       output: [
-        { file: `cjs/${src_name}.js`, format: 'cjs', exports:'named', sourcemap },
-        { file: `esm/${src_name}.js`, format: 'es', sourcemap } ]})
+        { file: `cjs/${src_name}.cjs`, format: 'cjs', exports:'named', sourcemap },
+        { file: `esm/${src_name}.mjs`, format: 'es', sourcemap } ]})
 
   if (plugins_web)
     configs.push({
