@@ -1,4 +1,4 @@
-import { u8_concat } from 'u8-utils/esm/buffer.js'
+import { u8_concat } from 'u8-utils/esm/buffer.mjs'
 export * from './asn1_positive_int.jsy'
 
 export default asn1_u8_encode

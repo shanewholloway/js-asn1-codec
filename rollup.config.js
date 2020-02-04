@@ -9,47 +9,30 @@ const configs = []
 export default configs
 
 const sourcemap = true
-const external = []
 
-const plugins = [ rpi_resolve() ]
-const plugins_nodejs = [
-  rpi_jsy({defines: {PLAT_NODEJS: true}}),
-  ... plugins ]
-const plugins_web = [
-  rpi_jsy({defines: {PLAT_WEB: true}}),
-  ... plugins ]
-const plugins_min = [
-  ... plugins_web,
-  rpi_terser({}) ]
+const plugins = [ rpi_jsy(), rpi_resolve() ]
+const plugins_min = [ ... plugins, rpi_terser({}) ]
 
 
-add_jsy('index', pkg_name)
+add_jsy('index', {module_name: pkg_name})
 add_jsy('asn1_decode')
 add_jsy('asn1_encode')
 
 
-function add_jsy(src_name, module_name) {
-  if (!module_name) module_name = `${pkg_name}_${src_name}`
+function add_jsy(src_name, opt={}) {
+  let module_name = opt.module_name || `${pkg_name}_${src_name}`
 
-  if (plugins_nodejs)
-    configs.push({
-      input: `code/${src_name}.jsy`,
-      plugins: plugins_nodejs, external,
-      output: [
-        { file: `cjs/${src_name}.cjs`, format: 'cjs', exports:'named', sourcemap },
-        { file: `esm/${src_name}.mjs`, format: 'es', sourcemap } ]})
-
-  if (plugins_web)
-    configs.push({
-      input: `code/${src_name}.jsy`,
-      plugins: plugins_web, external,
-      output: [
-        { file: `umd/${src_name}.js`, format: 'umd', name:module_name, exports:'named', sourcemap },
-        { file: `esm/web/${src_name}.js`, format: 'es', sourcemap } ]})
+  configs.push({
+    input: `code/${src_name}.jsy`,
+    plugins,
+    output: [
+      { file: `esm/${src_name}.mjs`, format: 'es', sourcemap },
+      { file: `cjs/${src_name}.cjs`, format: 'cjs', exports:'named', sourcemap },
+      { file: `umd/${src_name}.js`, format: 'umd', name:module_name, exports:'named', sourcemap }, ]})
 
   if (plugins_min)
     configs.push({
       input: `code/${src_name}.jsy`,
-      plugins: plugins_min, external,
+      plugins: plugins_min,
       output: { file: `umd/${src_name}.min.js`, format: 'umd', name:module_name, exports:'named', sourcemap }})
 }
