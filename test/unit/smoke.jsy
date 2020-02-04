@@ -5,12 +5,12 @@ const umd_or_module = require('asn1-codec')
 
 describe @ 'smoke', @::
   it @ 'esm basic', @::
-    assert.equal @ typeof asn1_u8_encode, 'function'
-    assert.equal @ typeof asn1_u8_decode, 'function'
-    assert.equal @ typeof asn1_u8_decode_many, 'function'
+    assert.equal @ 'function', typeof asn1_u8_encode
+    assert.equal @ 'function', typeof asn1_u8_decode
+    assert.equal @ 'function', typeof asn1_u8_decode_many
 
   it @ 'commonjs / web', @::
-    assert @ umd_or_module.asn1_u8_encode, 'object'
-    assert @ umd_or_module.asn1_u8_decode, 'object'
-    assert @ umd_or_module.asn1_u8_decode_many, 'object'
+    assert.equal @ 'function', typeof umd_or_module.asn1_u8_encode
+    assert.equal @ 'function', typeof umd_or_module.asn1_u8_decode
+    assert.equal @ 'function', typeof umd_or_module.asn1_u8_decode_many
 

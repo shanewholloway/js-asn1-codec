@@ -1,6 +1,6 @@
 {
   "name": "asn1-codec",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "ASN1 Codec for NodeJS and the Web",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -20,7 +20,7 @@
   "type": "module",
   "main": "./cjs/index.cjs",
   "module": "./esm/index.mjs",
-  "browser": "./umd/asn1_codec.min.js",
+  "browser": "./umd/index.min.js",
   "exports": {
     "import": "./esm/index.mjs",
     "require": "./cjs/index.cjs"

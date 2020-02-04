@@ -1,6 +1,0 @@
-export * from './index.jsy'
-
-export * from './ecc/index.jsy'
-export * from './ecdsa/index.jsy'
-export * from './ecdh/api.jsy'
-

@@ -2,7 +2,6 @@
   "private": true,
   "dependencies": {
     "asn1-codec": "file:..",
-    "ec-pem": "^0.18.0",
     "u8-utils": "^0.2.1"
   },
   "devDependencies": {
@@ -18,6 +17,7 @@
     "prebuild": "test -d ./node_modules || npm -s install",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
+    "clean": "rm __unittest*",
     "pretest": "npm -s run build",
     "test": "npm -s run test:one",
     "test:one": "mocha ./__unittest.cjs.js",
